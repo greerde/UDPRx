@@ -15,28 +15,22 @@ namespace ConsoleApplication
 
         private static async Task ReaderAsync (int port)
         {
+            Console.WriteLine("Starting...");
             using (var client = new UdpClient(port))
             {
                 do
                 {
-                    Console.WriteLine("Starting...");
                     UdpReceiveResult r = await client.ReceiveAsync();
-                    byte [] dg = r.Buffer;
-                    //string rx = Encoding.UTF8.GetString(dg);
 
-                    PDW p = new PDW();
-                     p = Desserialize(r.Buffer);
-
-
+                    PDW p = Desserialize(r.Buffer);
                     Console.WriteLine("freq = " + p.startFrequencyMHz);
-
                 }
                 while (true);
             }
         }
 
 
-        public static PDW Desserialize(byte[] data) {
+      public static PDW Desserialize(byte[] data) {
       PDW result = new PDW();
       using (MemoryStream m = new MemoryStream(data)) {
          using (BinaryReader reader = new BinaryReader(m)) {
@@ -56,22 +50,19 @@ namespace ConsoleApplication
 			result.riseTime = reader.ReadSingle();
 			result.fallTime = reader.ReadSingle();
 			result.pri = reader.ReadDouble();
-			
-
          }
       }
       return result;
    }
-    }
+}
 
 
-    public class PDW
+   	public class PDW
 	{
-	
 		public int counter = 0; // rolling counter 
 		public int receiverID = 1; //!< ID of the receiver that generated the PDW
 		
-		public long toa;
+		public long toa; // time in ns
 
 		public float startFrequencyMHz = 1000; //!< Start frequency in MHz (TOA)
 		public float stopFrequencyMHz = 1000; //!< Stop frequency in MHz (TOA + PW)
@@ -87,38 +78,7 @@ namespace ConsoleApplication
 		public float riseTime = 0; //!< Rise time in seconds
 		public float fallTime = 0; //!< Rise time in seconds
 		public double pri = 0; //!< Pulse repetition interval in seconds
-
-
-	public byte[] Serialize()
-	{
-		using (MemoryStream m = new MemoryStream())
-		{
-			using (BinaryWriter writer = new BinaryWriter(m))
-			{
-				writer.Write(counter);
-				writer.Write(receiverID);
-				writer.Write(toa);
-				writer.Write(startFrequencyMHz);
-				writer.Write(stopFrequencyMHz);
-				writer.Write(pulseWidth);
-				writer.Write(pulseAmplitude);
-				writer.Write(snr);
-				writer.Write(phase);
-				writer.Write(phaseReferenceTime);
-				writer.Write(errorFlags);
-				writer.Write(modulationFlags);
-				writer.Write(modulationParameters);
-				writer.Write(angleOfArrival);
-				writer.Write(riseTime);
-				writer.Write(fallTime);
-				writer.Write(pri);
-
-			}
-			return m.ToArray();
-		}
-	}
-}
 	
-
-
+	
+	}
 }
